@@ -14,13 +14,13 @@ export async function fetcher<T>(
    revalidate = 60,
 ) : Promise<T> {
    const url = qs.stringifyUrl({
-      url: `${BASE_URL}/${endpoint}`,
+      url: `${BASE_URL}/${endpoint.replace(/^\//, '')}`,
       query: params,
    }, { skipEmptyString: true, skipNull: true });
 
    const response = await fetch(url, {
       headers: {
-         //"x-cg-pro-api-key": API_KEY,
+         "x-cg-demo-api-key": API_KEY,
          "Content-Type": "application/json",
       } as Record<string, string>,
 
