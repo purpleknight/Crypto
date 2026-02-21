@@ -60,7 +60,7 @@ export const TrendingCoinsFallback = () => {
    );
 };
 
-   export const CategoriesFallback = () => {
+export const CategoriesFallback = () => {
    const columns = [
       {
          header: 'Category',
