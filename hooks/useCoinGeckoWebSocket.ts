@@ -12,7 +12,7 @@ export const useCoinGeckoWebSocket = ({
 
    const [price, setPrice] = useState<ExtendedPriceData | null>(null);
    const [trades, setTrades] = useState<Trade[]>([]);
-   const [ohlcv, setOhlcv] = useState<[number, number, number, number, number] | null>(null);
+   const [ohlcv, setOhlcv] = useState<OHLCData | null>(null);
    const [isWsReady, setIsWsReady] = useState(false);
 
    useEffect(() => {
@@ -80,13 +80,26 @@ export const useCoinGeckoWebSocket = ({
                Number(msg.c ?? 0),
             ];
 
-            setOhlcv(candle);
+            setOhlcv((prev) => {
+               const data = prev ? [...prev] : [];
+               const last = data[data.length - 1];
+               if (last && last[0] === candle[0]) {
+                  data[data.length - 1] = candle;
+               } else {
+                  data.push(candle);
+               }
+               return data;
+            })
          }
       };
 
       ws.onopen = () => setIsWsReady(true);
       ws.onmessage = handleMessage;
       ws.onclose = () => setIsWsReady(false);
+      ws.onerror = (error) => {
+         console.error('Websocket error:', error);
+         setIsWsReady(false);
+      }
 
       return() => {
          ws.close();
@@ -143,7 +156,7 @@ export const useCoinGeckoWebSocket = ({
             action: 'set_tokens'
          });
 
-         const poolAddress = poolId.replaceAll('_', ':');
+         const poolAddress = poolId.replace('_', ':') ?? '';
 
          if (poolAddress) {
          subscribe('OnchainTrade', {
