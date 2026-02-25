@@ -24,14 +24,14 @@ const CandlestickChart = ({
 
    
    const [period, setPeriod] = useState(initialPeriod);
-   const [ohlcData, setOhlcData] = useState<OHLCData[]>(data ?? []);
+   const [ohlcData, setOhlcData] = useState<OHLCData>(data ?? []);
    const [isPending, startTransition] = useTransition();
 
    const fetchOHLCData = async(selectedPeriod: Period) => {
       try {
          const {days, interval } = PERIOD_CONFIG[selectedPeriod];
 
-         const newData = await fetcher<OHLCData[]>(`/coins/${coinId}/ohlc`, {
+         const newData = await fetcher<OHLCData>(`/coins/${coinId}/ohlc`, {
             vs_currency: 'usd',
             days,
          });

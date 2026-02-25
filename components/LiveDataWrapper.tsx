@@ -55,7 +55,7 @@ const LiveDataWrapper =
             livePrice = {price?.usd ?? coin.market_data.current_price.usd}
             livePriceChangePercentage24h = {
                price?.change24h ?? coin.market_data
-                  .price_change_percentage_30d_in_currency.usd
+                  .price_change_percentage_24h_in_currency.usd
             }
 
             priceChangePercentage30d = {coin.market_data
@@ -81,19 +81,19 @@ const LiveDataWrapper =
          </div>
 
          <Separator className="divider" />
-
-         {tradeColumns && (
-            <div className="trades">
+         
+            {trades.length > 0 && (
+               <div className="trades">
                <h4>Recent Trades</h4>
 
                <DataTable 
                   columns={tradeColumns}
                   data={trades}
-                  rowKey={(_, index) => index}
+                  rowKey={(trade) => `${trade.timestamp} - ${trade.price} - ${trade.type}`}
                   tableClassName="trades-table"
                />
             </div>
-         )}
+            )}
       </section>
    );
 };

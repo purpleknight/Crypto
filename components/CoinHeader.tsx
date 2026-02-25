@@ -80,7 +80,7 @@ const CoinHeader = ({
                      'text-red-500': !stat.isUp,
                   })}>
                      <p>{stat.formatter(stat.value)}</p>
-                     {stat.showIcon && stat.isUp ? (
+                     {stat.showIcon && (stat.isUp ? (
                         <TrendingUp 
                            width={16}
                            height={16}
@@ -90,7 +90,7 @@ const CoinHeader = ({
                            width={16}
                            height={16}
                         />
-                     )}
+                     ))}
                   </div>
                </li>
             ))}

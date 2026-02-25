@@ -34,6 +34,7 @@ const Converter = ({ symbol, icon, priceList}: ConverterProps) => {
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   className='input'
+                  min='0'
                />
                <div className='info flex items-center gap-2'>
                   <Image 
@@ -63,7 +64,7 @@ const Converter = ({ symbol, icon, priceList}: ConverterProps) => {
                </p>
 
                <Select value={currency} onValueChange={setCurrency}>
-                  <SelectTrigger className="select-trigger" value={currency}>
+                  <SelectTrigger className="select-trigger">
                      <SelectValue placeholder="Select" className='select-value'>
                         {currency.toUpperCase()}
                      </SelectValue>

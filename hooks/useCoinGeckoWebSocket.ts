@@ -2,9 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-const WS_BASE = 
-`${process.env.NEXT_PUBLIC_COINGECKO_WEBSOCKET_URL}
-   ? x_cg_api_key=${process.env.NEXT_PUBLIC_COINGECKO_API_KEY}`;
+const WS_BASE =`${process.env.NEXT_PUBLIC_COINGECKO_WEBSOCKET_URL}? x_cg_api_key=${process.env.NEXT_PUBLIC_COINGECKO_API_KEY}`;
 
 export const useCoinGeckoWebSocket = ({ 
    coinId, poolId, liveInterval
@@ -14,8 +12,7 @@ export const useCoinGeckoWebSocket = ({
 
    const [price, setPrice] = useState<ExtendedPriceData | null>(null);
    const [trades, setTrades] = useState<Trade[]>([]);
-   const [ohlcv, setOhlcv] = useState<OHLCData | null>(null);
-
+   const [ohlcv, setOhlcv] = useState<[number, number, number, number, number] | null>(null);
    const [isWsReady, setIsWsReady] = useState(false);
 
    useEffect(() => {
@@ -26,7 +23,13 @@ export const useCoinGeckoWebSocket = ({
          ws.send(JSON.stringify(payload));
 
       const handleMessage = (event: MessageEvent) => {
-         const msg: WebSocketMessage = JSON.parse(event.data);
+         let msg: WebSocketMessage;
+
+         try {
+            msg = JSON.parse(event.data);
+         } catch {
+            return;
+         }
 
          if (msg.type === 'ping') {
             send({ type: 'pong'});
@@ -34,9 +37,12 @@ export const useCoinGeckoWebSocket = ({
          }
 
          if (msg.type === 'confirm_subscription') {
-            const { channel } = JSON.parse(msg?.identifier ?? '');
-
-            subscribed.current.add(channel);
+            try {
+               const { channel } = JSON.parse(msg?.identifier ?? '{}');
+               subscribed.current.add(channel);
+            } catch {
+               // ignore malformed identifier
+            }
          }
 
          if (msg.c === 'C1') {
@@ -65,12 +71,11 @@ export const useCoinGeckoWebSocket = ({
          }
 
          if (msg.ch === 'G3') {
-            const timestamp = msg.t ?? 0;
 
-            const candle: OHLCData = [
-               timestamp,
+            const candle: [number, number, number, number, number] = [
+               msg.t ?? 0,
                Number(msg.o ?? 0),
-               Number(msg.h?? 0),
+               Number(msg.h ?? 0),
                Number(msg.l ?? 0),
                Number(msg.c ?? 0),
             ];
@@ -82,7 +87,11 @@ export const useCoinGeckoWebSocket = ({
       ws.onopen = () => setIsWsReady(true);
       ws.onmessage = handleMessage;
       ws.onclose = () => setIsWsReady(false);
-      return() => ws.close();
+
+      return() => {
+         ws.close();
+         subscribed.current.clear();
+      } 
 
    }, []);
 
@@ -133,11 +142,10 @@ export const useCoinGeckoWebSocket = ({
             coin_id: [coinId],
             action: 'set_tokens'
          });
-      });
 
-      const poolAddress = poolId.replace('_', ':');
+         const poolAddress = poolId.replaceAll('_', ':');
 
-      if (poolAddress) {
+         if (poolAddress) {
          subscribe('OnchainTrade', {
             'network_id:pool_addresses': [poolAddress],
             action:'set_pools',
@@ -149,6 +157,10 @@ export const useCoinGeckoWebSocket = ({
             action:'set_pools',
          });
       }
+
+   });
+
+      
 
    }, [coinId, poolId, isWsReady, liveInterval]);
 
