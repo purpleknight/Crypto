@@ -1,4 +1,4 @@
-type OHLCData = [number, number, number, number, number];
+type OHLCData = [number, number, number, number, number][];
 
 interface NextPageProps {
    params: Promise<{ [key: string]: string }>;
@@ -6,7 +6,7 @@ interface NextPageProps {
 }
 
 interface CandlestickChartProps {
-   data?: OHLCData[];
+   data?: OHLCData;
    liveOhlcv?: OHLCData | null;
    coinId: string;
    height?: number;
@@ -226,7 +226,7 @@ interface LiveDataProps {
    coinId: string;
    poolId: string;
    coin: CoinDetailsData;
-   coinOHLCData?: OHLCData[];
+   coinOHLCData?: OHLCData;
    children?: React.ReactNode;
 }
 
