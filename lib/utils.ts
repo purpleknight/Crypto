@@ -69,7 +69,7 @@ export function timeAgo(date: string | number | Date): string {
   return past.toISOString().split('T')[0];
 }
 
-export function convertOHLCData(data: OHLCData[]) {
+export function convertOHLCData(data: OHLCData) {
   return data
     .map((d) => ({
       time: d[0] as Time, // ensure seconds, not ms
